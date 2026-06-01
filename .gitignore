@@ -1,8 +1,9 @@
 __pycache__/
+tests/__pycache__/
+luvcam/tests/__pycache__/
 *.py[cod]
 *.egg-info/
 .tox/
 .venv/
 dist/
 build/
-tests/__pycache__/
