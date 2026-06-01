@@ -101,6 +101,8 @@ def create_op_plan_science_img(img_time_utc,target_ra,target_dec,
     slot = 4 
     # define source node for mcr commands
     source = 28
+    # limit for times the command should be sent
+    attempts = 30
 
     # convert ra,dec if needed
     if (type(target_ra) == tuple) and (len(target_ra)==3):
@@ -358,8 +360,68 @@ grb sh 0 rm dtsol6.b
 """
 
     with open(f"{output_fn}.txt", "w") as file:
-        file.write(op_plan)
+        file.write(op_plan)    
 
+    op_plan_satop = f"""# This is an operation plan for LUVCam image of {target_name} 
+# at RA = {ra_deg} deg, Dec = {dec_deg} deg at {img_time_utc} UTC
+# with an exposure of {img_exp/1000} seconds.
+# Verify that the target will not be behind the Earth.
+
+# Detumbling will begin at {datetime.fromtimestamp(ts_detumbling,tz=timezone.utc).strftime('%Y-%m-%d %H:%M:%S')}.
+# Pointing will begin at {datetime.fromtimestamp(ts_pointing,tz=timezone.utc).strftime('%Y-%m-%d %H:%M:%S')}, 
+# {dt_pointing} minutes before the image will be taken. Verify that 
+# the satellite will be illuminated by the Sun.
+
+# MAKE SURE THE TIMES ARE LATER THAN THE PASS WHEN YOU EXECUTE THE COMMANDS.
+# Make sure previous data were downloaded or are not needed.
+
+a cli 1 "rm <filename>" # end # {attempts}
+a grb sh 0 rm dtsol6.b # dtsol # 10
+a grb sh 0 ll # ir # 10
+
+# Below follows a list of commands to be copied into SatOp.
+# The commands should be executed in this order.
+
+a dk wipe 10 1  # wiped # {attempts}
+a dk wipe 10 13 # wiped # {attempts}
+a dk wipe 10 41 # wiped # {attempts}
+a dk wipe 10 43 # wiped # {attempts}
+a dk wipe 10 44 # wiped # {attempts}
+a dk wipe 10 50 # wiped # {attempts}
+a dk list # DK # {attempts}
+a dk st # DK # {attempts}
+a vac pos tle /var/local/lib/vcom/logs/grbbeta/currentpass/TLE.txt # reply # {attempts}
+a vac pos fetch # reply # {attempts}
+a vac pos sat # reply # {attempts}
+a vac g ss 0 # reply # {attempts}
+a vac g sq -- {q0},{q1},{q2},{q3} ECI {slot} # reply # {attempts}
+a vac g ss {slot} # reply # {attempts}
+a vac g gs # reply # {attempts}
+a vac g gt {slot} # reply # {attempts}
+a cli 14 "mcrr a" # OK # {attempts}
+a cli 14 "mcra 10 1 1 28 10 19 37 0 TRX 01 74 63 5F 73 61 66 65 32 6F 62 73 00 00 00 00 00 00 00 00 00 00 00 00 01 00 00 00 00" # OK # {attempts}
+a per ls tc_safe2obs # tc_safe2obs # {attempts}
+a per ls tc_safe2obs # tc_safe2obs # 10
+a cli 14 "mcra {ts_detumbling} 1 1 {source} 10 26 33 0 TRX 00 04 08 07 00 00 00 00 00 00 00 00 00 00 00 00" # OK # {attempts}
+a cli 14 "mcra {ts_pointing} 1 1 {source} 10 19 34 0 TRX 01 74 63 5F 73 61 66 65 32 6F 62 73 00 00 00 00 00 00 00 00 00 00 00 00 01 B0 04 00 00" # OK # {attempts}
+a cli 14 "mcra {int(ts_img-305)} 1 1 {source} 6 8 35 0 TRX 00 1C 0C 98 6E 16 00 64 74 73 6F 6C 36 2E 62" # OK # {attempts}
+a cli 14 "mcra {int(ts_img-301)} 1 1 {source} 6 16 36 0 TRX 14 00 00 00 00 00 00 00 05 00 00 00 6F 00 78 00 00 8C C5 B8 00" # OK # {attempts}
+a cli 14 "mcra {int(ts_img-dt_flush-45)} 1 1 {source} 1 7 37 0 TRX 6C 75 76 63 61 6D 20 70 6F 77 65 72 20 66 70 67 61 20 6F 6E 00" # OK # {attempts}
+a cli 14 "mcra {int(ts_img-dt_flush-15)} 1 1 {source} 1 7 38 0 TRX 6C 75 76 63 61 6D 20 70 6F 77 65 72 20 73 65 6E 73 6F 72 20 6F 6E 00"  # OK # {attempts}
+a cli 14 "mcra {ts_img-dt_flush} 1 1 {source} 1 7 39 0 TRX {flush_luvcam_expose_data}" # OK # {attempts}
+a cli 14 "mcra {int(ts_img-dt_flush+60)} 1 2 {source} 1 7 40 0 TRX 6C 75 76 63 61 6D 20 70 6F 77 65 72 20 73 65 6E 73 6F 72 20 6F 66 66 00" # OK # {attempts}
+a cli 14 "mcra {int(ts_img-dt_flush+2*60)} 1 2 {source} 1 7 41 0 TRX 6C 75 76 63 61 6D 20 70 6F 77 65 72 20 66 70 67 61 20 6F 66 66 00" # OK # {attempts}
+a cli 14 "mcra {int(ts_img-45)} 1 1 {source} 1 7 37 0 TRX 6C 75 76 63 61 6D 20 70 6F 77 65 72 20 66 70 67 61 20 6F 6E 00" # OK # {attempts}
+a cli 14 "mcra {int(ts_img-15)} 1 1 {source} 1 7 38 0 TRX 6C 75 76 63 61 6D 20 70 6F 77 65 72 20 73 65 6E 73 6F 72 20 6F 6E 00"  # OK # {attempts}
+a cli 14 "mcra {ts_img} 1 1 {source} 1 7 39 0 TRX {luvcam_expose_data}" # OK # {attempts}
+a cli 14 "mcra {int(ts_img+2*60)} 1 2 {source} 1 7 40 0 TRX 6C 75 76 63 61 6D 20 70 6F 77 65 72 20 73 65 6E 73 6F 72 20 6F 66 66 00" # OK # {attempts}
+a cli 14 "mcra {int(ts_img+3*60)} 1 2 {source} 1 7 41 0 TRX 6C 75 76 63 61 6D 20 70 6F 77 65 72 20 66 70 67 61 20 6F 66 66 00" # OK # {attempts}
+a cli 14 mcr # OK # {attempts}
+
+"""
+
+    with open(f"{output_fn}_satop.txt", "w") as file:
+        file.write(op_plan_satop)
 
 
 
