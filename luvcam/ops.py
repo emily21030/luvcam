@@ -362,24 +362,7 @@ grb sh 0 rm dtsol6.b
     with open(f"{output_fn}.txt", "w") as file:
         file.write(op_plan)    
 
-    op_plan_satop = f"""# This is an operation plan for LUVCam image of {target_name} 
-# at RA = {ra_deg} deg, Dec = {dec_deg} deg at {img_time_utc} UTC
-# with an exposure of {img_exp/1000} seconds.
-# Verify that the target will not be behind the Earth.
-
-# Detumbling will begin at {datetime.fromtimestamp(ts_detumbling,tz=timezone.utc).strftime('%Y-%m-%d %H:%M:%S')}.
-# Pointing will begin at {datetime.fromtimestamp(ts_pointing,tz=timezone.utc).strftime('%Y-%m-%d %H:%M:%S')}, 
-# {dt_pointing} minutes before the image will be taken. Verify that 
-# the satellite will be illuminated by the Sun.
-
-# MAKE SURE THE TIMES ARE LATER THAN THE PASS WHEN YOU EXECUTE THE COMMANDS.
-# Make sure previous data were downloaded or are not needed.
-
-a cli 1 "rm <filename>" # end # {attempts}
-a grb sh 0 rm dtsol6.b # dtsol # 10
-a grb sh 0 ll # ir # 10
-
-# Below follows a list of commands to be copied into SatOp.
+    op_plan_satop = f"""# Below follows a list of commands to be copied into SatOp.
 # The commands should be executed in this order.
 
 a dk wipe 10 1  # wiped # {attempts}
@@ -559,3 +542,8 @@ grb sh 0 rm dtsol6.b
         file.write(op_plan)
 
 
+# create op plan
+create_op_plan_science_img(img_time_utc="2026-06-03 20:00:00",
+                           target_ra=150.4,target_dec=53.1,target_name="target",
+                           img_filename="26f03",img_exp=250,flush_img_filename="flush",
+                           dt_pointing=10,output_fn="op_plan_20260603")
