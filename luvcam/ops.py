@@ -370,6 +370,7 @@ a dk wipe 10 44 # wiped|err # {attempts}
 a dk wipe 10 50 # wiped|err # {attempts}
 a dk list # DK # {attempts}
 a dk st # DK # {attempts}
+a cli 1 ll # end # {attempts}
 a vac pos tle /var/local/lib/vcom/logs/grbbeta/currentpass/TLE.txt # reply # {attempts}
 a vac pos fetch # reply # {attempts}
 a vac pos sat # reply # {attempts}
@@ -397,6 +398,7 @@ a cli 14 "mcra {ts_img} 1 1 {source} 1 7 39 0 TRX {luvcam_expose_data}" # OK|add
 a cli 14 "mcra {int(ts_img+2*60)} 1 2 {source} 1 7 40 0 TRX 6C 75 76 63 61 6D 20 70 6F 77 65 72 20 73 65 6E 73 6F 72 20 6F 66 66 00" # OK|added # {attempts}
 a cli 14 "mcra {int(ts_img+3*60)} 1 2 {source} 1 7 41 0 TRX 6C 75 76 63 61 6D 20 70 6F 77 65 72 20 66 70 67 61 20 6F 66 66 00" # OK|added # {attempts}
 a cli 14 mcr # OK # {attempts}
+a cli 1 ll # end # {attempts} {datetime.fromtimestamp(int(ts_img+4*60),timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")}
 
 """
 
