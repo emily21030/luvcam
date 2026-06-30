@@ -368,7 +368,7 @@ a dk wipe 10 41 # wiped|err # {attempts}
 a dk wipe 10 43 # wiped|err # {attempts}
 a dk wipe 10 44 # wiped|err # {attempts}
 a dk wipe 10 50 # wiped|err # {attempts}
-a dk list # DK # {attempts}
+a dk list # \-\r?\n[^a-z]*$ # {attempts}
 a dk st # DK # {attempts}
 a cli 1 ll # responseLen # {attempts}
 a vac pos tle /var/local/lib/vcom/logs/grbbeta/currentpass/TLE.txt # reply # {attempts}
@@ -542,8 +542,8 @@ grb sh 0 rm dtsol6.b
         file.write(op_plan)
 
 
-# create op plan
-create_op_plan_science_img(img_time_utc="2026-06-03 20:00:00",
-                           target_ra=150.4,target_dec=53.1,target_name="target",
-                           img_filename="26f03",img_exp=250,flush_img_filename="flush",
-                           dt_pointing=10,output_fn="op_plan_20260603")
+# # create op plan
+# create_op_plan_science_img(img_time_utc="2026-06-03 20:00:00",
+#                            target_ra=150.4,target_dec=53.1,target_name="target",
+#                            img_filename="26f03",img_exp=250,flush_img_filename="flush",
+#                            dt_pointing=10,output_fn="op_plan_20260603")
