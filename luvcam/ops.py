@@ -500,32 +500,29 @@ grb getf 0 -u -i -1 -w 8 -p 200 dtsol6.b -n 100
 
 # part 1/2
 YYYY-MM-DD HH:MM:SS
-m grb getf 1 -u -i -1 -w 8 -p 200 {filename}.raw -f 0 -s 262144 -n 3000
+m grb address_offset 0 # grb getf 1 -u -i -1 -w 8 -p 200 {filename}.raw -f 0 -s 262144 -n 3000
 
 # part 2/2
 YYYY-MM-DD HH:MM:SS
-m grb getf 1 -u -i -1 -w 8 -p 200 {filename}.raw -f 262144 -s 262272 -n 3000
+m grb address_offset 0 # grb getf 1 -u -i -1 -w 8 -p 200 {filename}.raw -f 262144 -s 262272 -n 3000
 
 
-# !IMPORTANT! In all output "cli 14 ..." commands for download of LUVCam images,
-# we need to manually change "7" to "1". 
 # Example:
 # We want to download part of 26d10a.raw file during pass which begins 
 # at 2026-04-11 17:06:00 UTC. Copy following two lines to SatOp:
 
 2026-04-11 17:06:00
-m grb getf 1 -u -i -1 -w 8 -p 200 26d10a.raw -f 0 -s 250112 -n 3000
+m grb address_offset 0 # grb getf 1 -u -i -1 -w 8 -p 200 26d10a.raw -f 0 -s 250112 -n 3000
 
 # You will get following output:
 
 Timestamp: 1775927160
 
 # CSP [PACKET] OUT: S 28, D 7, Dp 16, Sp 59, Pr 2, Fl 0x00, Sz 41 VIA: LOOP (7) data: 18 31 C7 67 28 FF F8 00 0C 00 00 00 C8 00 00 00 00 00 00 00 00 00 03 D1 00 80 00 0B B8 32 36 64 31 30 61 2E 72 61 77 00 2D
-cli 14 "mcra 1775927160 1 1 28 7 16 59 0 TRX 18 31 C7 67 28 FF F8 00 0C 00 00 00 C8 00 00 00 00 00 00 00 00 00 03 D1 00 80 00 0B B8 32 36 64 31 30 61 2E 72 61 77 00 2D"
+cli 14 "mcra 1775927160 1 1 28 1 16 59 0 TRX 18 31 C7 67 28 FF F8 00 0C 00 00 00 C8 00 00 00 00 00 00 00 00 00 03 D1 00 80 00 0B B8 32 36 64 31 30 61 2E 72 61 77 00 2D"
 # Regex: Cron|OK|Error
 
-# The "cli 14 ..." command is what we need. However, we need to change
-# the number 7 between "28" and "16" to 1. Thus the command that we send 
+# The "cli 14 ..." command is what we need. Thus the (only) command that we send 
 # to the satellite will be:
 
 cli 14 "mcra 1775927160 1 1 28 1 16 59 0 TRX 18 31 C7 67 28 FF F8 00 0C 00 00 00 C8 00 00 00 00 00 00 00 00 00 03 D1 00 80 00 0B B8 32 36 64 31 30 61 2E 72 61 77 00 2D"
