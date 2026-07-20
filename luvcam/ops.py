@@ -380,23 +380,23 @@ a vac g ss {slot} # reply # {attempts}
 a vac g gs # reply # {attempts}
 a vac g gt {slot} # reply # {attempts}
 a cli 14 "mcrr a" # OK # {attempts}
-a cli 14 "mcra 10 1 1 28 10 19 37 0 TRX 01 74 63 5F 73 61 66 65 32 6F 62 73 00 00 00 00 00 00 00 00 00 00 00 00 01 00 00 00 00" # OK|added # {attempts}
+a cli 14 "mcra 10 1 1 28 10 19 37 0 TRX 01 74 63 5F 73 61 66 65 32 6F 62 73 00 00 00 00 00 00 00 00 00 00 00 00 01 00 00 00 00" # OK|added|Cron # {attempts}
 a per ls tc_safe2obs # tc_safe2obs # {attempts}
 a per ls tc_safe2obs # tc_safe2obs # 10
-a cli 14 "mcra {ts_detumbling} 1 1 {source} 10 26 33 0 TRX 00 04 08 07 00 00 00 00 00 00 00 00 00 00 00 00" # OK|added # {attempts}
-a cli 14 "mcra {ts_pointing} 1 1 {source} 10 19 34 0 TRX 01 74 63 5F 73 61 66 65 32 6F 62 73 00 00 00 00 00 00 00 00 00 00 00 00 01 B0 04 00 00" # OK|added # {attempts}
-a cli 14 "mcra {int(ts_img-305)} 1 1 {source} 6 8 35 0 TRX 00 1C 0C 98 6E 16 00 64 74 73 6F 6C 36 2E 62" # OK|added # {attempts}
-a cli 14 "mcra {int(ts_img-301)} 1 1 {source} 6 16 36 0 TRX 14 00 00 00 00 00 00 00 05 00 00 00 6F 00 78 00 00 8C C5 B8 00" # OK|added # {attempts}
-a cli 14 "mcra {int(ts_img-dt_flush-45)} 1 1 {source} 1 7 37 0 TRX 6C 75 76 63 61 6D 20 70 6F 77 65 72 20 66 70 67 61 20 6F 6E 00" # OK|added # {attempts}
-a cli 14 "mcra {int(ts_img-dt_flush-15)} 1 1 {source} 1 7 38 0 TRX 6C 75 76 63 61 6D 20 70 6F 77 65 72 20 73 65 6E 73 6F 72 20 6F 6E 00" # OK|added # {attempts}
-a cli 14 "mcra {ts_img-dt_flush} 1 1 {source} 1 7 39 0 TRX {flush_luvcam_expose_data}" # OK|added # {attempts}
-a cli 14 "mcra {int(ts_img-dt_flush+60)} 1 2 {source} 1 7 40 0 TRX 6C 75 76 63 61 6D 20 70 6F 77 65 72 20 73 65 6E 73 6F 72 20 6F 66 66 00" # OK|added # {attempts}
-a cli 14 "mcra {int(ts_img-dt_flush+2*60)} 1 2 {source} 1 7 41 0 TRX 6C 75 76 63 61 6D 20 70 6F 77 65 72 20 66 70 67 61 20 6F 66 66 00" # OK|added # {attempts}
-a cli 14 "mcra {int(ts_img-45)} 1 1 {source} 1 7 37 0 TRX 6C 75 76 63 61 6D 20 70 6F 77 65 72 20 66 70 67 61 20 6F 6E 00" # OK|added # {attempts}
-a cli 14 "mcra {int(ts_img-15)} 1 1 {source} 1 7 38 0 TRX 6C 75 76 63 61 6D 20 70 6F 77 65 72 20 73 65 6E 73 6F 72 20 6F 6E 00" # OK|added # {attempts}
-a cli 14 "mcra {ts_img} 1 1 {source} 1 7 39 0 TRX {luvcam_expose_data}" # OK|added # {attempts}
-a cli 14 "mcra {int(ts_img+2*60)} 1 2 {source} 1 7 40 0 TRX 6C 75 76 63 61 6D 20 70 6F 77 65 72 20 73 65 6E 73 6F 72 20 6F 66 66 00" # OK|added # {attempts}
-a cli 14 "mcra {int(ts_img+3*60)} 1 2 {source} 1 7 41 0 TRX 6C 75 76 63 61 6D 20 70 6F 77 65 72 20 66 70 67 61 20 6F 66 66 00" # OK|added # {attempts}
+a cli 14 "mcra {ts_detumbling} 1 1 {source} 10 26 33 0 TRX 00 04 08 07 00 00 00 00 00 00 00 00 00 00 00 00" # OK|added|Cron # {attempts}
+a cli 14 "mcra {ts_pointing} 1 1 {source} 10 19 34 0 TRX 01 74 63 5F 73 61 66 65 32 6F 62 73 00 00 00 00 00 00 00 00 00 00 00 00 01 B0 04 00 00" # OK|added|Cron # {attempts}
+a cli 14 "mcra {int(ts_img-305)} 1 1 {source} 6 8 35 0 TRX 00 1C 0C 98 6E 16 00 64 74 73 6F 6C 36 2E 62" # OK|added|Cron # {attempts}
+a cli 14 "mcra {int(ts_img-301)} 1 1 {source} 6 16 36 0 TRX 14 00 00 00 00 00 00 00 05 00 00 00 6F 00 78 00 00 8C C5 B8 00" # OK|added|Cron # {attempts}
+a cli 14 "mcra {int(ts_img-dt_flush-45)} 1 1 {source} 1 7 37 0 TRX 6C 75 76 63 61 6D 20 70 6F 77 65 72 20 66 70 67 61 20 6F 6E 00" # OK|added|Cron # {attempts}
+a cli 14 "mcra {int(ts_img-dt_flush-15)} 1 1 {source} 1 7 38 0 TRX 6C 75 76 63 61 6D 20 70 6F 77 65 72 20 73 65 6E 73 6F 72 20 6F 6E 00" # OK|added|Cron # {attempts}
+a cli 14 "mcra {ts_img-dt_flush} 1 1 {source} 1 7 39 0 TRX {flush_luvcam_expose_data}" # OK|added|Cron # {attempts}
+a cli 14 "mcra {int(ts_img-dt_flush+60)} 1 2 {source} 1 7 40 0 TRX 6C 75 76 63 61 6D 20 70 6F 77 65 72 20 73 65 6E 73 6F 72 20 6F 66 66 00" # OK|added|Cron # {attempts}
+a cli 14 "mcra {int(ts_img-dt_flush+2*60)} 1 2 {source} 1 7 41 0 TRX 6C 75 76 63 61 6D 20 70 6F 77 65 72 20 66 70 67 61 20 6F 66 66 00" # OK|added|Cron # {attempts}
+a cli 14 "mcra {int(ts_img-45)} 1 1 {source} 1 7 37 0 TRX 6C 75 76 63 61 6D 20 70 6F 77 65 72 20 66 70 67 61 20 6F 6E 00" # OK|added|Cron # {attempts}
+a cli 14 "mcra {int(ts_img-15)} 1 1 {source} 1 7 38 0 TRX 6C 75 76 63 61 6D 20 70 6F 77 65 72 20 73 65 6E 73 6F 72 20 6F 6E 00" # OK|added|Cron # {attempts}
+a cli 14 "mcra {ts_img} 1 1 {source} 1 7 39 0 TRX {luvcam_expose_data}" # OK|added|Cron # {attempts}
+a cli 14 "mcra {int(ts_img+2*60)} 1 2 {source} 1 7 40 0 TRX 6C 75 76 63 61 6D 20 70 6F 77 65 72 20 73 65 6E 73 6F 72 20 6F 66 66 00" # OK|added|Cron # {attempts}
+a cli 14 "mcra {int(ts_img+3*60)} 1 2 {source} 1 7 41 0 TRX 6C 75 76 63 61 6D 20 70 6F 77 65 72 20 66 70 67 61 20 6F 66 66 00" # OK|added|Cron # {attempts}
 a cli 14 mcr # OK # {attempts}
 a cli 1 ll # responseLen # {attempts} {datetime.fromtimestamp(int(ts_img+4*60),timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")}
 a grb sh 0 ll # .b # {attempts} {datetime.fromtimestamp(int(ts_img+4*60),timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")}
