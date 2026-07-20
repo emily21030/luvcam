@@ -368,7 +368,7 @@ a dk wipe 10 41 # wiped|err # {attempts}
 a dk wipe 10 43 # wiped|err # {attempts}
 a dk wipe 10 44 # wiped|err # {attempts}
 a dk wipe 10 50 # wiped|err # {attempts}
-a dk list # \-\r?\n[^a-z]*$ # {attempts}
+a dk list # \-\\r?\\n[^a-z]*$ # {attempts}
 a dk st # DK # {attempts}
 a cli 1 ll # responseLen # {attempts}
 a vac pos tle /var/local/lib/vcom/logs/grbbeta/currentpass/TLE.txt # reply # {attempts}
