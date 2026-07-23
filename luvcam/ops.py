@@ -539,7 +539,7 @@ grb getf 0 -u -i -1 -w 8 -p 200 dtsol6.b -n 100
 
 # potentially also scheduled with other drops (e.g., after one of the longer ones during high and long passes)
 YYYY-MM-DD HH:MM:SS
-m grb getf 10 -u -i -1 -w 8 -p 200 dtsol6.b -n 100
+m grb getf 0 -u -i -1 -w 8 -p 200 dtsol6.b -n 100
 
 # Calibration LUVCam image (512x512 px) typically needs 2 passes to download.
 # The drops can be either started manually at the beginning of each pass,
@@ -637,7 +637,7 @@ a grb sh 0 ll # .b # 30 {datetime.fromtimestamp(int(ts_img+4*60),timezone.utc).s
 ---------------------------------------------------------------------------------
 ## commands for drops ... the cron commands still need to be retrieved from satop
 YYYY-MM-DD HH:MM:SS
-m grb getf 10 -u -i -1 -w 8 -p 200 dtsol6.b -n 100
+m grb getf 0 -u -i -1 -w 8 -p 200 dtsol6.b -n 100
 
 ## science image
 # part 1/2
