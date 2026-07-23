@@ -612,18 +612,18 @@ a grb sh 0 rm dtsol6.b # E4|.b
 a cli 1 ll # responseLen
 a grb sh 0 df # fatfs
 a cli 14 "mcrr a" # OK
-a cli 14 "mcra {int(ts_img-dt_bg-dt_noise-5*60)} 1 1 {source} 6 8 35 0 TRX 00 1C 0C 98 6E 16 00 64 74 73 6F 6C 36 2E 62" # OK|added|Cron
-a cli 14 "mcra {int(ts_img-dt_bg-dt_noise-2*60)} 1 1 {source} 6 16 36 0 TRX 14 00 00 00 00 00 00 00 05 00 00 00 6F 00 F0 00 00 8C C5 B8 00" # OK|added|Cron
-a cli 14 "mcra {int(ts_img-dt_bg-dt_noise-45)} 1 1 {source} 1 7 37 0 TRX 6C 75 76 63 61 6D 20 70 6F 77 65 72 20 66 70 67 61 20 6F 6E 00" # OK|added|Cron
-a cli 14 "mcra {int(ts_img-dt_bg-dt_noise-15)} 1 1 {source} 1 7 38 0 TRX 6C 75 76 63 61 6D 20 70 6F 77 65 72 20 73 65 6E 73 6F 72 20 6F 6E 00" # OK|added|Cron
-a cli 14 "mcra {int(ts_img-dt_bg-dt_noise)} 1 1 {source} 1 7 39 0 TRX {luvcam_expose_data_noise}" # OK|added|Cron
-a cli 14 "mcra {int(ts_img-dt_bg-dt_noise+2*60)} 1 2 {source} 1 7 40 0 TRX 6C 75 76 63 61 6D 20 70 6F 77 65 72 20 73 65 6E 73 6F 72 20 6F 66 66 00" # OK|added|Cron
-a cli 14 "mcra {int(ts_img-dt_bg-dt_noise+3*60)} 1 2 {source} 1 7 41 0 TRX 6C 75 76 63 61 6D 20 70 6F 77 65 72 20 66 70 67 61 20 6F 66 66 00" # OK|added|Cron
-a cli 14 "mcra {int(ts_img-dt_bg-45)} 1 1 {source} 1 7 37 0 TRX 6C 75 76 63 61 6D 20 70 6F 77 65 72 20 66 70 67 61 20 6F 6E 00" # OK|added|Cron
-a cli 14 "mcra {int(ts_img-dt_bg-15)} 1 1 {source} 1 7 38 0 TRX 6C 75 76 63 61 6D 20 70 6F 77 65 72 20 73 65 6E 73 6F 72 20 6F 6E 00" # OK|added|Cron
-a cli 14 "mcra {int(ts_img-dt_bg)} 1 1 {source} 1 7 39 0 TRX {luvcam_expose_data_bg}" # OK|added|Cron
-a cli 14 "mcra {int(ts_img-dt_bg+1.5*60)} 1 2 {source} 1 7 40 0 TRX 6C 75 76 63 61 6D 20 70 6F 77 65 72 20 73 65 6E 73 6F 72 20 6F 66 66 00" # OK|added|Cron
-a cli 14 "mcra {int(ts_img-dt_bg+2*60)} 1 2 {source} 1 7 41 0 TRX 6C 75 76 63 61 6D 20 70 6F 77 65 72 20 66 70 67 61 20 6F 66 66 00" # OK|added|Cron
+a cli 14 "mcra {int(ts_img-dt_bg*60-dt_noise*60-5*60)} 1 1 {source} 6 8 35 0 TRX 00 1C 0C 98 6E 16 00 64 74 73 6F 6C 36 2E 62" # OK|added|Cron
+a cli 14 "mcra {int(ts_img-dt_bg*60-dt_noise*60-2*60)} 1 1 {source} 6 16 36 0 TRX 14 00 00 00 00 00 00 00 05 00 00 00 6F 00 F0 00 00 8C C5 B8 00" # OK|added|Cron
+a cli 14 "mcra {int(ts_img-dt_bg*60-dt_noise*60-45)} 1 1 {source} 1 7 37 0 TRX 6C 75 76 63 61 6D 20 70 6F 77 65 72 20 66 70 67 61 20 6F 6E 00" # OK|added|Cron
+a cli 14 "mcra {int(ts_img-dt_bg*60-dt_noise*60-15)} 1 1 {source} 1 7 38 0 TRX 6C 75 76 63 61 6D 20 70 6F 77 65 72 20 73 65 6E 73 6F 72 20 6F 6E 00" # OK|added|Cron
+a cli 14 "mcra {int(ts_img-dt_bg*60-dt_noise*60)} 1 1 {source} 1 7 39 0 TRX {luvcam_expose_data_noise}" # OK|added|Cron
+a cli 14 "mcra {int(ts_img-dt_bg*60-dt_noise*60+2*60)} 1 2 {source} 1 7 40 0 TRX 6C 75 76 63 61 6D 20 70 6F 77 65 72 20 73 65 6E 73 6F 72 20 6F 66 66 00" # OK|added|Cron
+a cli 14 "mcra {int(ts_img-dt_bg*60-dt_noise*60+3*60)} 1 2 {source} 1 7 41 0 TRX 6C 75 76 63 61 6D 20 70 6F 77 65 72 20 66 70 67 61 20 6F 66 66 00" # OK|added|Cron
+a cli 14 "mcra {int(ts_img-dt_bg*60-45)} 1 1 {source} 1 7 37 0 TRX 6C 75 76 63 61 6D 20 70 6F 77 65 72 20 66 70 67 61 20 6F 6E 00" # OK|added|Cron
+a cli 14 "mcra {int(ts_img-dt_bg*60-15)} 1 1 {source} 1 7 38 0 TRX 6C 75 76 63 61 6D 20 70 6F 77 65 72 20 73 65 6E 73 6F 72 20 6F 6E 00" # OK|added|Cron
+a cli 14 "mcra {int(ts_img-dt_bg*60)} 1 1 {source} 1 7 39 0 TRX {luvcam_expose_data_bg}" # OK|added|Cron
+a cli 14 "mcra {int(ts_img-dt_bg*60+1.5*60)} 1 2 {source} 1 7 40 0 TRX 6C 75 76 63 61 6D 20 70 6F 77 65 72 20 73 65 6E 73 6F 72 20 6F 66 66 00" # OK|added|Cron
+a cli 14 "mcra {int(ts_img-dt_bg*60+2*60)} 1 2 {source} 1 7 41 0 TRX 6C 75 76 63 61 6D 20 70 6F 77 65 72 20 66 70 67 61 20 6F 66 66 00" # OK|added|Cron
 a cli 14 "mcra {int(ts_img-45)} 1 1 {source} 1 7 37 0 TRX 6C 75 76 63 61 6D 20 70 6F 77 65 72 20 66 70 67 61 20 6F 6E 00" # OK|added|Cron
 a cli 14 "mcra {int(ts_img-15)} 1 1 {source} 1 7 38 0 TRX 6C 75 76 63 61 6D 20 70 6F 77 65 72 20 73 65 6E 73 6F 72 20 6F 6E 00" # OK|added|Cron
 a cli 14 "mcra {ts_img} 1 1 {source} 1 7 39 0 TRX {luvcam_expose_data}" # OK|added|Cron
