@@ -409,9 +409,13 @@ a grb sh 0 ll # .b # {attempts} {datetime.fromtimestamp(int(ts_img+4*60),timezon
 
 
 
-def create_op_plan_calibration_img(img_time_utc,img_filename,img_exp,output_fn="op_plan"):
+def create_op_plan_calibration_img(img_time_utc,img_filename,img_exp,
+                                   dt_bg=3,bg_exp=10,
+                                   dt_noise=4,noise_exp=1000,
+                                   output_fn="op_plan"):
     '''
     This function creates an operation plan for LUVCam only operation. It is useful for calibration and images in SAA.
+    Noise image is a small one 256x256px; background image has the same dimensions as science.
 
     required arguments:
     - img_time_utc: UTC time when the image should be taken, e.g. 2026-04-22 20:35:00 
@@ -419,11 +423,20 @@ def create_op_plan_calibration_img(img_time_utc,img_filename,img_exp,output_fn="
     - img_exp: required exposure in miliseconds, e.g. 1000 (= 1s)
 
     optional arguments:
+    - dt_bg: minutes prior to real image when the background image should be taken; at least 3 min are needed (default: 3 min)
+    - bg_exp: exposure of the background image in ms (default: 10ms)
+    - dt_noise: minutes prior to bg image when the noise image should be taken; at least 4 min are needed (default: 4 min)
+    - noise_exp: exposure of the noise image in ms (default: 1000 = 1s)
     - output_fn: name of the output txt file, by default "op_plan.txt"
 
     output:
     - .txt file with the operation plan to be executed
     '''
+
+    if dt_bg<3:
+        raise ValueError("dt_bg cannot be lower than 3min")
+    if dt_noise<4:
+        raise ValueError("dt_noise cannot be lower than 4min")
 
     # define source node for mcr commands
     source = 28
@@ -445,6 +458,11 @@ def create_op_plan_calibration_img(img_time_utc,img_filename,img_exp,output_fn="
     # img filename format for drops
     filename = img_filename.split('.')[0]
 
+    bg_filename = filename+'b'
+    luvcam_expose_data_bg = _get_luvcam_expose_data(bg_filename,bg_exp,img_x_offset,img_y_offset,img_xs,img_ys)
+    noise_filename = filename+'n'
+    luvcam_expose_data_noise = _get_luvcam_expose_data(noise_filename,noise_exp,int(img_x_offset+128),int(img_y_offset+128),256,256)
+
 
     op_plan = f"""# This is an operation plan for LUVCam image
 # of the non-illuminated part of CMOS at {img_time_utc} UTC
@@ -455,16 +473,42 @@ def create_op_plan_calibration_img(img_time_utc,img_filename,img_exp,output_fn="
 # Below follows a list of commands to be executed (for now manually by an operator).
 # The commands should be executed in this order.
 
+# 0.
+# remove old temperature file
+# make sure it was already downloaded
+# this may not be performed; the data will just append to the existing file in the worst case 
+grb sh 0 rm dtsol6.b
+
+# delete all cron items
+cli 14 "mcrr a"
 
 # 1.
-# Schedule temperature measurement 5 min before the image for 10 min.
+# Schedule temperature measurement starting 2 min before the noise image and lasting 20 min.
 # The measurement will be saved in "dtsol6.b" file on node 6.
-cli 14 "mcra {int(ts_img-605)} 1 1 {source} 6 8 35 0 TRX 00 1C 0C 98 6E 16 00 64 74 73 6F 6C 36 2E 62"
-cli 14 "mcra {int(ts_img-601)} 1 1 {source} 6 16 36 0 TRX 14 00 00 00 00 00 00 00 05 00 00 00 6F 00 78 00 00 8C C5 B8 00"
+cli 14 "mcra {int(ts_img-dt_bg-dt_noise-5*60)} 1 1 {source} 6 8 35 0 TRX 00 1C 0C 98 6E 16 00 64 74 73 6F 6C 36 2E 62"
+cli 14 "mcra {int(ts_img-dt_bg-dt_noise-2*60)} 1 1 {source} 6 16 36 0 TRX 14 00 00 00 00 00 00 00 05 00 00 00 6F 00 F0 00 00 8C C5 B8 00"
 
-# 2. 
+# 2a. 
 # LUVCam op:
-# following 5 commands will turn on LUVCam, take the image and turn off LUVCam
+# following 5 commands will turn on LUVCam, take a noise image and turn off LUVCam
+cli 14 "mcra {int(ts_img-dt_bg-dt_noise-45)} 1 1 {source} 1 7 37 0 TRX 6C 75 76 63 61 6D 20 70 6F 77 65 72 20 66 70 67 61 20 6F 6E 00"
+cli 14 "mcra {int(ts_img-dt_bg-dt_noise-15)} 1 1 {source} 1 7 38 0 TRX 6C 75 76 63 61 6D 20 70 6F 77 65 72 20 73 65 6E 73 6F 72 20 6F 6E 00" 
+cli 14 "mcra {int(ts_img-dt_bg-dt_noise)} 1 1 {source} 1 7 39 0 TRX {luvcam_expose_data_noise}"
+cli 14 "mcra {int(ts_img-dt_bg-dt_noise+2*60)} 1 2 {source} 1 7 40 0 TRX 6C 75 76 63 61 6D 20 70 6F 77 65 72 20 73 65 6E 73 6F 72 20 6F 66 66 00"
+cli 14 "mcra {int(ts_img-dt_bg-dt_noise+3*60)} 1 2 {source} 1 7 41 0 TRX 6C 75 76 63 61 6D 20 70 6F 77 65 72 20 66 70 67 61 20 6F 66 66 00"
+
+# 2b. 
+# LUVCam op:
+# following 5 commands will turn on LUVCam, take a background image and turn off LUVCam
+cli 14 "mcra {int(ts_img-dt_bg-45)} 1 1 {source} 1 7 37 0 TRX 6C 75 76 63 61 6D 20 70 6F 77 65 72 20 66 70 67 61 20 6F 6E 00"
+cli 14 "mcra {int(ts_img-dt_bg-15)} 1 1 {source} 1 7 38 0 TRX 6C 75 76 63 61 6D 20 70 6F 77 65 72 20 73 65 6E 73 6F 72 20 6F 6E 00" 
+cli 14 "mcra {int(ts_img-dt_bg)} 1 1 {source} 1 7 39 0 TRX {luvcam_expose_data_bg}"
+cli 14 "mcra {int(ts_img-dt_bg+1.5*60)} 1 2 {source} 1 7 40 0 TRX 6C 75 76 63 61 6D 20 70 6F 77 65 72 20 73 65 6E 73 6F 72 20 6F 66 66 00"
+cli 14 "mcra {int(ts_img-dt_bg+2*60)} 1 2 {source} 1 7 41 0 TRX 6C 75 76 63 61 6D 20 70 6F 77 65 72 20 66 70 67 61 20 6F 66 66 00"
+
+# 2c. 
+# LUVCam op:
+# following 5 commands will turn on LUVCam, take the science image and turn off LUVCam
 cli 14 "mcra {int(ts_img-45)} 1 1 {source} 1 7 37 0 TRX 6C 75 76 63 61 6D 20 70 6F 77 65 72 20 66 70 67 61 20 6F 6E 00"
 cli 14 "mcra {int(ts_img-15)} 1 1 {source} 1 7 38 0 TRX 6C 75 76 63 61 6D 20 70 6F 77 65 72 20 73 65 6E 73 6F 72 20 6F 6E 00" 
 cli 14 "mcra {ts_img} 1 1 {source} 1 7 39 0 TRX {luvcam_expose_data}"
@@ -474,7 +518,7 @@ cli 14 "mcra {int(ts_img+3*60)} 1 2 {source} 1 7 41 0 TRX 6C 75 76 63 61 6D 20 7
 # 3. 
 # check items saved in minicron scheduler
 # this is mainly for debuging in case something goes wrong
-# there should be 7 items
+# there should be 17 items
 cli 14 mcr
 
 # This is the end of the main operation.
@@ -490,6 +534,10 @@ cli 14 mcr
 grb address_offset 6
 grb getf 0 -u -i -1 -w 8 -p 200 dtsol6.b -n 100
 
+# potentially also scheduled with other drops (e.g., after one of the longer ones during high and long passes)
+YYYY-MM-DD HH:MM:SS
+m grb getf 10 -u -i -1 -w 8 -p 200 dtsol6.b -n 100
+
 # Calibration LUVCam image (512x512 px) typically needs 2 passes to download.
 # The drops can be either started manually at the beginning of each pass,
 # or, more conveniently, they can be scheduled for later passes via minicron.
@@ -498,6 +546,7 @@ grb getf 0 -u -i -1 -w 8 -p 200 dtsol6.b -n 100
 # Before each "grb getf" command, change time to that of the pass when you want 
 # it to be downloaded. Each part should be downloaded during different pass.
 
+## science image
 # part 1/2
 YYYY-MM-DD HH:MM:SS
 m grb address_offset 0 # grb getf 1 -u -i -1 -w 8 -p 200 {filename}.raw -f 0 -s 262144 -n 3000
@@ -505,6 +554,20 @@ m grb address_offset 0 # grb getf 1 -u -i -1 -w 8 -p 200 {filename}.raw -f 0 -s 
 # part 2/2
 YYYY-MM-DD HH:MM:SS
 m grb address_offset 0 # grb getf 1 -u -i -1 -w 8 -p 200 {filename}.raw -f 262144 -s 262272 -n 3000
+
+## background image
+# part 1/2
+YYYY-MM-DD HH:MM:SS
+m grb address_offset 0 # grb getf 1 -u -i -1 -w 8 -p 200 {bg_filename}.raw -f 0 -s 262144 -n 3000
+
+# part 2/2
+YYYY-MM-DD HH:MM:SS
+m grb address_offset 0 # grb getf 1 -u -i -1 -w 8 -p 200 {bg_filename}.raw -f 262144 -s 262272 -n 3000
+
+## noise image
+# part 1/1
+YYYY-MM-DD HH:MM:SS
+m grb address_offset 0 # grb getf 1 -u -i -1 -w 8 -p 200 {noise_filename}.raw -n 1500
 
 
 # Example:
@@ -528,7 +591,7 @@ cli 14 "mcra 1775927160 1 1 28 1 16 59 0 TRX 18 31 C7 67 28 FF F8 00 0C 00 00 00
 cli 14 "mcra 1775927160 1 1 28 1 16 59 0 TRX 18 31 C7 67 28 FF F8 00 0C 00 00 00 C8 00 00 00 00 00 00 00 00 00 03 D1 00 80 00 0B B8 32 36 64 31 30 61 2E 72 61 77 00 2D"
 
 # After all files are successfully downloaded, we delete them:
-cli 1 "rm {filename}.raw"
+cli 1 "rm {filename}.raw {bg_filename}.raw {noise_filename}.raw"
 grb sh 0 rm dtsol6.b
 
 
