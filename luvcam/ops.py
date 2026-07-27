@@ -195,6 +195,12 @@ dk wipe 10 41
 dk wipe 10 43
 dk wipe 10 44
 dk wipe 10 50
+dk wipe 10 10
+dk wipe 10 11
+dk wipe 10 12
+dk wipe 10 45
+dk wipe 10 46
+dk wipe 10 47
 
 # check DK storage
 dk list
@@ -378,6 +384,12 @@ a dk wipe 10 41 # wiped|err {at}
 a dk wipe 10 43 # wiped|err {at}
 a dk wipe 10 44 # wiped|err {at}
 a dk wipe 10 50 # wiped|err {at}
+a dk wipe 10 10 # wiped|err {at}
+a dk wipe 10 11 # wiped|err {at}
+a dk wipe 10 12 # wiped|err {at}
+a dk wipe 10 45 # wiped|err {at}
+a dk wipe 10 46 # wiped|err {at}
+a dk wipe 10 47 # wiped|err {at}
 a dk list # \-\\r?\\n[^a-z]*$ {at}
 a dk st # DK {at}
 a cli 1 ll # responseLen {at}
