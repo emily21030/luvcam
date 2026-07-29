@@ -72,7 +72,7 @@ def _get_luvcam_expose_data(img_filename,img_exp,img_x_offset,img_y_offset,img_x
 def create_op_plan_science_img(img_time_utc,target_ra,target_dec,
                                img_filename,img_exp,
                                dt_pointing=20,target_name=None,flush_img_filename='noise',
-                               output_fn='op_plan'):
+                               output_fn='op_plan',when_to_send=None):
     '''
     This function creates an operation plan for AOCS+LUVCam operation.
 
@@ -92,6 +92,7 @@ def create_op_plan_science_img(img_time_utc,target_ra,target_dec,
     - target_name: this is just for your information and clarity, e.g. Pleiades
     - flush_img_filename: name of the flush image (default: noise)
     - output_fn: name of the output txt file, by default "op_plan.txt"
+    - when_to_send: earliest UTC time when the commands can be sent to the satellite (e.g., 2026-07-29 12:00:00); default is None meaning that the commands will be sent during the first pass after they are scheduled 
 
     output:
     - .txt file with the operation plan to be executed
@@ -101,6 +102,8 @@ def create_op_plan_science_img(img_time_utc,target_ra,target_dec,
     slot = 4 
     # define source node for mcr commands
     source = 28
+    # limit for times the command should be sent
+    attempts = 30
 
     # convert ra,dec if needed
     if (type(target_ra) == tuple) and (len(target_ra)==3):
@@ -131,7 +134,7 @@ def create_op_plan_science_img(img_time_utc,target_ra,target_dec,
     ts_img = int(dt.timestamp())
     ts_pointing = int(ts_img-dt_pointing*60)
 
-    ts_detumbling = int(ts_pointing-20*60)
+    ts_detumbling = int(ts_pointing-35*60)
 
     if ts_img-ts_pointing<0:
         raise ValueError("Pointing cannot begin after the image is taken!")
@@ -192,6 +195,12 @@ dk wipe 10 41
 dk wipe 10 43
 dk wipe 10 44
 dk wipe 10 50
+dk wipe 10 10
+dk wipe 10 11
+dk wipe 10 12
+dk wipe 10 45
+dk wipe 10 46
+dk wipe 10 47
 
 # check DK storage
 dk list
@@ -289,65 +298,62 @@ grb getf 0 -u -i -1 -w 8 -p 200 dtsol6.b -n 100
 
 # part 1/8
 YYYY-MM-DD HH:MM:SS
-m grb getf 1 -u -i -1 -w 8 -p 200 {filename}.raw -f 0 -s 250112 -n 3000
+m grb address_offset 0 # grb getf 1 -u -i -1 -w 8 -p 200 {filename}.raw -f 0 -s 250112 -n 3000
 
 # part 2/8
 YYYY-MM-DD HH:MM:SS
-m grb getf 1 -u -i -1 -w 8 -p 200 {filename}.raw -f 250112 -s 250112 -n 3000
+m grb address_offset 0 # grb getf 1 -u -i -1 -w 8 -p 200 {filename}.raw -f 250112 -s 250112 -n 3000
 
 # part 3/8
 YYYY-MM-DD HH:MM:SS
-m grb getf 1 -u -i -1 -w 8 -p 200 {filename}.raw -f 500224 -s 250112 -n 3000
+m grb address_offset 0 # grb getf 1 -u -i -1 -w 8 -p 200 {filename}.raw -f 500224 -s 250112 -n 3000
 
 # part 4/8
 YYYY-MM-DD HH:MM:SS
-m grb getf 1 -u -i -1 -w 8 -p 200 {filename}.raw -f 750336 -s 250112 -n 3000
+m grb address_offset 0 # grb getf 1 -u -i -1 -w 8 -p 200 {filename}.raw -f 750336 -s 250112 -n 3000
 
 # part 5/8
 YYYY-MM-DD HH:MM:SS
-m grb getf 1 -u -i -1 -w 8 -p 200 {filename}.raw -f 1000448 -s 250112 -n 3000
+m grb address_offset 0 # grb getf 1 -u -i -1 -w 8 -p 200 {filename}.raw -f 1000448 -s 250112 -n 3000
 
 # part 6/8
 YYYY-MM-DD HH:MM:SS
-m grb getf 1 -u -i -1 -w 8 -p 200 {filename}.raw -f 1250560 -s 250112 -n 3000
+m grb address_offset 0 # grb getf 1 -u -i -1 -w 8 -p 200 {filename}.raw -f 1250560 -s 250112 -n 3000
 
 # part 7/8
 YYYY-MM-DD HH:MM:SS
-m grb getf 1 -u -i -1 -w 8 -p 200 {filename}.raw -f 1500672 -s 250112 -n 3000
+m grb address_offset 0 # grb getf 1 -u -i -1 -w 8 -p 200 {filename}.raw -f 1500672 -s 250112 -n 3000
 
 # part 8/8
 YYYY-MM-DD HH:MM:SS
-m grb getf 1 -u -i -1 -w 8 -p 200 {filename}.raw -f 1750784 -s 249344 -n 3000
+m grb address_offset 0 # grb getf 1 -u -i -1 -w 8 -p 200 {filename}.raw -f 1750784 -s 249344 -n 3000
 
 
-# !IMPORTANT! In all output "cli 14 ..." commands for download of LUVCam images,
-# we need to manually change "7" to "1". 
 # Example:
 # We want to download part of 26d10a.raw file during pass which begins 
 # at 2026-04-11 17:06:00 UTC. Copy following two lines to SatOp:
 
 2026-04-11 17:06:00
-m grb getf 1 -u -i -1 -w 8 -p 200 26d10a.raw -f 0 -s 250112 -n 3000
+m grb address_offset 0 # grb getf 1 -u -i -1 -w 8 -p 200 26d10a.raw -f 0 -s 250112 -n 3000
 
 # You will get following output:
 
 Timestamp: 1775927160
 
-# CSP [PACKET] OUT: S 28, D 7, Dp 16, Sp 59, Pr 2, Fl 0x00, Sz 41 VIA: LOOP (7) data: 18 31 C7 67 28 FF F8 00 0C 00 00 00 C8 00 00 00 00 00 00 00 00 00 03 D1 00 80 00 0B B8 32 36 64 31 30 61 2E 72 61 77 00 2D
-cli 14 "mcra 1775927160 1 1 28 7 16 59 0 TRX 18 31 C7 67 28 FF F8 00 0C 00 00 00 C8 00 00 00 00 00 00 00 00 00 03 D1 00 80 00 0B B8 32 36 64 31 30 61 2E 72 61 77 00 2D"
+# CSP [PACKET] OUT: S 28, D 1, Dp 16, Sp 33, Pr 2, Fl 0x00, Sz 41 VIA: LOOP (1) data: 18 31 C7 67 28 FF F8 00 0C 00 00 00 C8 00 00 00 00 00 00 00 00 00 03 D1 00 80 00 0B B8 32 36 64 31 30 61 2E 72 61 77 00 2D
+cli 14 "mcra 1775927160 1 1 28 1 16 33 0 TRX 18 31 C7 67 28 FF F8 00 0C 00 00 00 C8 00 00 00 00 00 00 00 00 00 03 D1 00 80 00 0B B8 32 36 64 31 30 61 2E 72 61 77 00 2D"
 # Regex: Cron|OK|Error
 
-# The "cli 14 ..." command is what we need. However, we need to change
-# the number 7 between "28" and "16" to 1. Thus the (only) command that 
-# we send to the satellite will be:
+# The "cli 14 ..." command is the (only) one that 
+# we send to the satellite:
 
-cli 14 "mcra 1775927160 1 1 28 1 16 59 0 TRX 18 31 C7 67 28 FF F8 00 0C 00 00 00 C8 00 00 00 00 00 00 00 00 00 03 D1 00 80 00 0B B8 32 36 64 31 30 61 2E 72 61 77 00 2D"
+cli 14 "mcra 1775927160 1 1 28 1 16 33 0 TRX 18 31 C7 67 28 FF F8 00 0C 00 00 00 C8 00 00 00 00 00 00 00 00 00 03 D1 00 80 00 0B B8 32 36 64 31 30 61 2E 72 61 77 00 2D"
 
 # Typically, it is not necessary to download the flush image.
 # However, in case we need it, here is the command for download:
 
 YYYY-MM-DD HH:MM:SS
-m grb getf 1 -u -i -1 -w 8 -p 200 {flush_img_filename}.raw -n 1500
+m grb address_offset 0 # grb getf 1 -u -i -1 -w 8 -p 200 {flush_img_filename}.raw -n 1500
 
 # After all files are successfully downloaded, we delete them:
 cli 1 "rm {filename}.raw {flush_img_filename}.raw"
@@ -358,15 +364,80 @@ grb sh 0 rm dtsol6.b
 """
 
     with open(f"{output_fn}.txt", "w") as file:
-        file.write(op_plan)
+        file.write(op_plan)    
+
+    ## schedule the commands for later if when_to_send argument is defined
+    if when_to_send != None:
+        attempts = 30
+        earliest_time = datetime.strptime(when_to_send, "%Y-%m-%d %H:%M:%S").replace(tzinfo=timezone.utc)
+        send_at = datetime.fromtimestamp(int(earliest_time.timestamp()),timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+        at = f"# {attempts} {send_at}"
+    else:
+        at = "" 
+
+    op_plan_satop = f"""# Below follows a list of commands to be copied into SatOp.
+# The commands should be executed in this order.
+
+a dk wipe 10 1  # wiped|err {at}
+a dk wipe 10 13 # wiped|err {at}
+a dk wipe 10 41 # wiped|err {at}
+a dk wipe 10 43 # wiped|err {at}
+a dk wipe 10 44 # wiped|err {at}
+a dk wipe 10 50 # wiped|err {at}
+a dk wipe 10 10 # wiped|err {at}
+a dk wipe 10 11 # wiped|err {at}
+a dk wipe 10 12 # wiped|err {at}
+a dk wipe 10 45 # wiped|err {at}
+a dk wipe 10 46 # wiped|err {at}
+a dk wipe 10 47 # wiped|err {at}
+a dk list # \-\\r?\\n[^a-z]*$ {at}
+a dk st # DK {at}
+a cli 1 ll # responseLen {at}
+a vac pos tle /var/local/lib/vcom/logs/grbbeta/currentpass/TLE.txt # reply {at}
+a vac pos fetch # reply {at}
+a vac pos sat # reply {at}
+a vac g ss 0 # reply {at}
+a vac g sq -- {q0},{q1},{q2},{q3} ECI {slot} # reply {at}
+a vac g ss {slot} # reply {at}
+a vac g gs # reply {at}
+a vac g gt {slot} # reply {at}
+a cli 14 "mcrr a" # OK {at}
+a cli 14 "mcra 10 1 1 28 10 19 37 0 TRX 01 74 63 5F 73 61 66 65 32 6F 62 73 00 00 00 00 00 00 00 00 00 00 00 00 01 00 00 00 00" # OK|Cron|Error {at}
+a per ls tc_safe2obs # tc_safe2obs {at}
+a per ls tc_safe2obs # tc_safe2obs {at}
+a cli 14 "mcra {ts_detumbling} 1 1 {source} 10 26 33 0 TRX 00 04 08 07 00 00 00 00 00 00 00 00 00 00 00 00" # OK|Cron|Error {at}
+a cli 14 "mcra {ts_pointing} 1 1 {source} 10 19 34 0 TRX 01 74 63 5F 73 61 66 65 32 6F 62 73 00 00 00 00 00 00 00 00 00 00 00 00 01 B0 04 00 00" # OK|Cron|Error {at}
+a cli 14 "mcra {int(ts_img-305)} 1 1 {source} 6 8 35 0 TRX 00 1C 0C 98 6E 16 00 64 74 73 6F 6C 36 2E 62" # OK|Cron|Error {at}
+a cli 14 "mcra {int(ts_img-301)} 1 1 {source} 6 16 36 0 TRX 14 00 00 00 00 00 00 00 05 00 00 00 6F 00 78 00 00 8C C5 B8 00" # OK|Cron|Error {at}
+a cli 14 "mcra {int(ts_img-dt_flush-45)} 1 1 {source} 1 7 37 0 TRX 6C 75 76 63 61 6D 20 70 6F 77 65 72 20 66 70 67 61 20 6F 6E 00" # OK|Cron|Error {at}
+a cli 14 "mcra {int(ts_img-dt_flush-15)} 1 1 {source} 1 7 38 0 TRX 6C 75 76 63 61 6D 20 70 6F 77 65 72 20 73 65 6E 73 6F 72 20 6F 6E 00" # OK|Cron|Error {at}
+a cli 14 "mcra {ts_img-dt_flush} 1 1 {source} 1 7 39 0 TRX {flush_luvcam_expose_data}" # OK|Cron|Error {at}
+a cli 14 "mcra {int(ts_img-dt_flush+60)} 1 2 {source} 1 7 40 0 TRX 6C 75 76 63 61 6D 20 70 6F 77 65 72 20 73 65 6E 73 6F 72 20 6F 66 66 00" # OK|Cron|Error {at}
+a cli 14 "mcra {int(ts_img-dt_flush+2*60)} 1 2 {source} 1 7 41 0 TRX 6C 75 76 63 61 6D 20 70 6F 77 65 72 20 66 70 67 61 20 6F 66 66 00" # OK|Cron|Error {at}
+a cli 14 "mcra {int(ts_img-45)} 1 1 {source} 1 7 37 0 TRX 6C 75 76 63 61 6D 20 70 6F 77 65 72 20 66 70 67 61 20 6F 6E 00" # OK|Cron|Error {at}
+a cli 14 "mcra {int(ts_img-15)} 1 1 {source} 1 7 38 0 TRX 6C 75 76 63 61 6D 20 70 6F 77 65 72 20 73 65 6E 73 6F 72 20 6F 6E 00" # OK|Cron|Error {at}
+a cli 14 "mcra {ts_img} 1 1 {source} 1 7 39 0 TRX {luvcam_expose_data}" # OK|Cron|Error {at}
+a cli 14 "mcra {int(ts_img+2*60)} 1 2 {source} 1 7 40 0 TRX 6C 75 76 63 61 6D 20 70 6F 77 65 72 20 73 65 6E 73 6F 72 20 6F 66 66 00" # OK|Cron|Error {at}
+a cli 14 "mcra {int(ts_img+3*60)} 1 2 {source} 1 7 41 0 TRX 6C 75 76 63 61 6D 20 70 6F 77 65 72 20 66 70 67 61 20 6F 66 66 00" # OK|Cron|Error {at}
+a cli 14 mcr # OK {at}
+a cli 1 ll # responseLen # {attempts} {datetime.fromtimestamp(int(ts_img+4*60),timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")}
+a grb sh 0 ll # .b # {attempts} {datetime.fromtimestamp(int(ts_img+4*60),timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")}
+
+"""
+
+    with open(f"{output_fn}_satop.txt", "w") as file:
+        file.write(op_plan_satop)
 
 
 
 
-
-def create_op_plan_calibration_img(img_time_utc,img_filename,img_exp,output_fn="op_plan"):
+def create_op_plan_calibration_img(img_time_utc,img_filename,img_exp,
+                                   dt_bg=3,bg_exp=10,
+                                   dt_noise=4,noise_exp=1000,
+                                   output_fn="op_plan",when_to_send=None):
     '''
     This function creates an operation plan for LUVCam only operation. It is useful for calibration and images in SAA.
+    Noise image is a small one 256x256px; background image has the same dimensions as science.
 
     required arguments:
     - img_time_utc: UTC time when the image should be taken, e.g. 2026-04-22 20:35:00 
@@ -374,11 +445,21 @@ def create_op_plan_calibration_img(img_time_utc,img_filename,img_exp,output_fn="
     - img_exp: required exposure in miliseconds, e.g. 1000 (= 1s)
 
     optional arguments:
+    - dt_bg: minutes prior to real image when the background image should be taken; at least 3 min are needed (default: 3 min)
+    - bg_exp: exposure of the background image in ms (default: 10ms)
+    - dt_noise: minutes prior to bg image when the noise image should be taken; at least 4 min are needed (default: 4 min)
+    - noise_exp: exposure of the noise image in ms (default: 1000 = 1s)
     - output_fn: name of the output txt file, by default "op_plan.txt"
+    - when_to_send: earliest UTC time when the commands can be sent to the satellite (e.g., 2026-07-29 12:00:00); default is None meaning that the commands will be sent during the first pass after they are scheduled 
 
     output:
     - .txt file with the operation plan to be executed
     '''
+
+    if dt_bg<3:
+        raise ValueError("dt_bg cannot be lower than 3min")
+    if dt_noise<4:
+        raise ValueError("dt_noise cannot be lower than 4min")
 
     # define source node for mcr commands
     source = 28
@@ -400,26 +481,60 @@ def create_op_plan_calibration_img(img_time_utc,img_filename,img_exp,output_fn="
     # img filename format for drops
     filename = img_filename.split('.')[0]
 
+    bg_filename = filename+'b'
+    luvcam_expose_data_bg = _get_luvcam_expose_data(bg_filename,bg_exp,img_x_offset,img_y_offset,img_xs,img_ys)
+    noise_filename = filename+'n'
+    luvcam_expose_data_noise = _get_luvcam_expose_data(noise_filename,noise_exp,int(img_x_offset+128),int(img_y_offset+128),256,256)
+
 
     op_plan = f"""# This is an operation plan for LUVCam image
 # of the non-illuminated part of CMOS at {img_time_utc} UTC
 # with an exposure of {img_exp/1000} seconds.
+
+# A {bg_exp}ms background image will be taken {dt_bg} minutes before the science image.
+# A {noise_exp}ms background image will be taken {dt_noise} minutes before the background image.
 
 # MAKE SURE THE TIME IS LATER THAN THE PASS WHEN YOU EXECUTE THE COMMANDS.
 
 # Below follows a list of commands to be executed (for now manually by an operator).
 # The commands should be executed in this order.
 
+# 0.
+# remove old temperature file
+# make sure it was already downloaded
+# this may not be performed; the data will just append to the existing file in the worst case 
+grb sh 0 rm dtsol6.b
+
+# delete all cron items
+cli 14 "mcrr a"
 
 # 1.
-# Schedule temperature measurement 5 min before the image for 10 min.
+# Schedule temperature measurement starting 2 min before the noise image and lasting 20 min.
 # The measurement will be saved in "dtsol6.b" file on node 6.
-cli 14 "mcra {int(ts_img-605)} 1 1 {source} 6 8 35 0 TRX 00 1C 0C 98 6E 16 00 64 74 73 6F 6C 36 2E 62"
-cli 14 "mcra {int(ts_img-601)} 1 1 {source} 6 16 36 0 TRX 14 00 00 00 00 00 00 00 05 00 00 00 6F 00 78 00 00 8C C5 B8 00"
+cli 14 "mcra {int(ts_img-dt_bg*60-dt_noise*60-5*60)} 1 1 {source} 6 8 35 0 TRX 00 1C 0C 98 6E 16 00 64 74 73 6F 6C 36 2E 62"
+cli 14 "mcra {int(ts_img-dt_bg*60-dt_noise*60-2*60)} 1 1 {source} 6 16 36 0 TRX 14 00 00 00 00 00 00 00 05 00 00 00 6F 00 F0 00 00 8C C5 B8 00"
 
-# 2. 
+# 2a. 
 # LUVCam op:
-# following 5 commands will turn on LUVCam, take the image and turn off LUVCam
+# following 5 commands will turn on LUVCam, take a noise image and turn off LUVCam
+cli 14 "mcra {int(ts_img-dt_bg*60-dt_noise*60-45)} 1 1 {source} 1 7 37 0 TRX 6C 75 76 63 61 6D 20 70 6F 77 65 72 20 66 70 67 61 20 6F 6E 00"
+cli 14 "mcra {int(ts_img-dt_bg*60-dt_noise*60-15)} 1 1 {source} 1 7 38 0 TRX 6C 75 76 63 61 6D 20 70 6F 77 65 72 20 73 65 6E 73 6F 72 20 6F 6E 00" 
+cli 14 "mcra {int(ts_img-dt_bg*60-dt_noise*60)} 1 1 {source} 1 7 39 0 TRX {luvcam_expose_data_noise}"
+cli 14 "mcra {int(ts_img-dt_bg*60-dt_noise*60+2*60)} 1 2 {source} 1 7 40 0 TRX 6C 75 76 63 61 6D 20 70 6F 77 65 72 20 73 65 6E 73 6F 72 20 6F 66 66 00"
+cli 14 "mcra {int(ts_img-dt_bg*60-dt_noise*60+3*60)} 1 2 {source} 1 7 41 0 TRX 6C 75 76 63 61 6D 20 70 6F 77 65 72 20 66 70 67 61 20 6F 66 66 00"
+
+# 2b. 
+# LUVCam op:
+# following 5 commands will turn on LUVCam, take a background image and turn off LUVCam
+cli 14 "mcra {int(ts_img-dt_bg*60-45)} 1 1 {source} 1 7 37 0 TRX 6C 75 76 63 61 6D 20 70 6F 77 65 72 20 66 70 67 61 20 6F 6E 00"
+cli 14 "mcra {int(ts_img-dt_bg*60-15)} 1 1 {source} 1 7 38 0 TRX 6C 75 76 63 61 6D 20 70 6F 77 65 72 20 73 65 6E 73 6F 72 20 6F 6E 00" 
+cli 14 "mcra {int(ts_img-dt_bg*60)} 1 1 {source} 1 7 39 0 TRX {luvcam_expose_data_bg}"
+cli 14 "mcra {int(ts_img-dt_bg*60+1.5*60)} 1 2 {source} 1 7 40 0 TRX 6C 75 76 63 61 6D 20 70 6F 77 65 72 20 73 65 6E 73 6F 72 20 6F 66 66 00"
+cli 14 "mcra {int(ts_img-dt_bg*60+2*60)} 1 2 {source} 1 7 41 0 TRX 6C 75 76 63 61 6D 20 70 6F 77 65 72 20 66 70 67 61 20 6F 66 66 00"
+
+# 2c. 
+# LUVCam op:
+# following 5 commands will turn on LUVCam, take the science image and turn off LUVCam
 cli 14 "mcra {int(ts_img-45)} 1 1 {source} 1 7 37 0 TRX 6C 75 76 63 61 6D 20 70 6F 77 65 72 20 66 70 67 61 20 6F 6E 00"
 cli 14 "mcra {int(ts_img-15)} 1 1 {source} 1 7 38 0 TRX 6C 75 76 63 61 6D 20 70 6F 77 65 72 20 73 65 6E 73 6F 72 20 6F 6E 00" 
 cli 14 "mcra {ts_img} 1 1 {source} 1 7 39 0 TRX {luvcam_expose_data}"
@@ -429,7 +544,7 @@ cli 14 "mcra {int(ts_img+3*60)} 1 2 {source} 1 7 41 0 TRX 6C 75 76 63 61 6D 20 7
 # 3. 
 # check items saved in minicron scheduler
 # this is mainly for debuging in case something goes wrong
-# there should be 7 items
+# there should be 17 items
 cli 14 mcr
 
 # This is the end of the main operation.
@@ -445,6 +560,10 @@ cli 14 mcr
 grb address_offset 6
 grb getf 0 -u -i -1 -w 8 -p 200 dtsol6.b -n 100
 
+# potentially also scheduled with other drops (e.g., after one of the longer ones during high and long passes)
+YYYY-MM-DD HH:MM:SS
+m grb getf 0 -u -i -1 -w 8 -p 200 dtsol6.b -n 100
+
 # Calibration LUVCam image (512x512 px) typically needs 2 passes to download.
 # The drops can be either started manually at the beginning of each pass,
 # or, more conveniently, they can be scheduled for later passes via minicron.
@@ -453,40 +572,52 @@ grb getf 0 -u -i -1 -w 8 -p 200 dtsol6.b -n 100
 # Before each "grb getf" command, change time to that of the pass when you want 
 # it to be downloaded. Each part should be downloaded during different pass.
 
+## science image
 # part 1/2
 YYYY-MM-DD HH:MM:SS
-m grb getf 1 -u -i -1 -w 8 -p 200 {filename}.raw -f 0 -s 262144 -n 3000
+m grb address_offset 0 # grb getf 1 -u -i -1 -w 8 -p 200 {filename}.raw -f 0 -s 262144 -n 3000
 
 # part 2/2
 YYYY-MM-DD HH:MM:SS
-m grb getf 1 -u -i -1 -w 8 -p 200 {filename}.raw -f 262144 -s 262272 -n 3000
+m grb address_offset 0 # grb getf 1 -u -i -1 -w 8 -p 200 {filename}.raw -f 262144 -s 262272 -n 3000
+
+## background image
+# part 1/2
+YYYY-MM-DD HH:MM:SS
+m grb address_offset 0 # grb getf 1 -u -i -1 -w 8 -p 200 {bg_filename}.raw -f 0 -s 262144 -n 3000
+
+# part 2/2
+YYYY-MM-DD HH:MM:SS
+m grb address_offset 0 # grb getf 1 -u -i -1 -w 8 -p 200 {bg_filename}.raw -f 262144 -s 262272 -n 3000
+
+## noise image
+# part 1/1
+YYYY-MM-DD HH:MM:SS
+m grb address_offset 0 # grb getf 1 -u -i -1 -w 8 -p 200 {noise_filename}.raw -n 1500
 
 
-# !IMPORTANT! In all output "cli 14 ..." commands for download of LUVCam images,
-# we need to manually change "7" to "1". 
 # Example:
 # We want to download part of 26d10a.raw file during pass which begins 
 # at 2026-04-11 17:06:00 UTC. Copy following two lines to SatOp:
 
 2026-04-11 17:06:00
-m grb getf 1 -u -i -1 -w 8 -p 200 26d10a.raw -f 0 -s 250112 -n 3000
+m grb address_offset 0 # grb getf 1 -u -i -1 -w 8 -p 200 26d10a.raw -f 0 -s 250112 -n 3000
 
 # You will get following output:
 
 Timestamp: 1775927160
 
 # CSP [PACKET] OUT: S 28, D 7, Dp 16, Sp 59, Pr 2, Fl 0x00, Sz 41 VIA: LOOP (7) data: 18 31 C7 67 28 FF F8 00 0C 00 00 00 C8 00 00 00 00 00 00 00 00 00 03 D1 00 80 00 0B B8 32 36 64 31 30 61 2E 72 61 77 00 2D
-cli 14 "mcra 1775927160 1 1 28 7 16 59 0 TRX 18 31 C7 67 28 FF F8 00 0C 00 00 00 C8 00 00 00 00 00 00 00 00 00 03 D1 00 80 00 0B B8 32 36 64 31 30 61 2E 72 61 77 00 2D"
+cli 14 "mcra 1775927160 1 1 28 1 16 59 0 TRX 18 31 C7 67 28 FF F8 00 0C 00 00 00 C8 00 00 00 00 00 00 00 00 00 03 D1 00 80 00 0B B8 32 36 64 31 30 61 2E 72 61 77 00 2D"
 # Regex: Cron|OK|Error
 
-# The "cli 14 ..." command is what we need. However, we need to change
-# the number 7 between "28" and "16" to 1. Thus the command that we send 
+# The "cli 14 ..." command is what we need. Thus the (only) command that we send 
 # to the satellite will be:
 
 cli 14 "mcra 1775927160 1 1 28 1 16 59 0 TRX 18 31 C7 67 28 FF F8 00 0C 00 00 00 C8 00 00 00 00 00 00 00 00 00 03 D1 00 80 00 0B B8 32 36 64 31 30 61 2E 72 61 77 00 2D"
 
 # After all files are successfully downloaded, we delete them:
-cli 1 "rm {filename}.raw"
+cli 1 "rm {filename}.raw {bg_filename}.raw {noise_filename}.raw"
 grb sh 0 rm dtsol6.b
 
 
@@ -497,3 +628,82 @@ grb sh 0 rm dtsol6.b
         file.write(op_plan)
 
 
+    ## schedule the commands for later if when_to_send argument is defined
+    if when_to_send != None:
+        attempts = 30
+        earliest_time = datetime.strptime(when_to_send, "%Y-%m-%d %H:%M:%S").replace(tzinfo=timezone.utc)
+        send_at = datetime.fromtimestamp(int(earliest_time.timestamp()),timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+        at = f"# {attempts} {send_at}"
+    else:
+        at = "" 
+        
+
+    op_plan_satop = f"""# Below follows a list of commands to be copied into SatOp.
+# The commands should be executed in this order.
+
+a grb sh 0 rm dtsol6.b # E4|.b {at}
+a cli 1 ll # responseLen {at}
+a grb sh 0 df # fatfs {at}
+a cli 14 "mcrr a" # OK {at}
+a cli 14 "mcra {int(ts_img-dt_bg*60-dt_noise*60-5*60)} 1 1 {source} 6 8 35 0 TRX 00 1C 0C 98 6E 16 00 64 74 73 6F 6C 36 2E 62" # OK|Cron|Error {at}
+a cli 14 "mcra {int(ts_img-dt_bg*60-dt_noise*60-2*60)} 1 1 {source} 6 16 36 0 TRX 14 00 00 00 00 00 00 00 05 00 00 00 6F 00 F0 00 00 8C C5 B8 00" # OK|Cron|Error {at}
+a cli 14 "mcra {int(ts_img-dt_bg*60-dt_noise*60-45)} 1 1 {source} 1 7 37 0 TRX 6C 75 76 63 61 6D 20 70 6F 77 65 72 20 66 70 67 61 20 6F 6E 00" # OK|Cron|Error {at}
+a cli 14 "mcra {int(ts_img-dt_bg*60-dt_noise*60-15)} 1 1 {source} 1 7 38 0 TRX 6C 75 76 63 61 6D 20 70 6F 77 65 72 20 73 65 6E 73 6F 72 20 6F 6E 00" # OK|Cron|Error {at}
+a cli 14 "mcra {int(ts_img-dt_bg*60-dt_noise*60)} 1 1 {source} 1 7 39 0 TRX {luvcam_expose_data_noise}" # OK|Cron|Error {at}
+a cli 14 "mcra {int(ts_img-dt_bg*60-dt_noise*60+2*60)} 1 2 {source} 1 7 40 0 TRX 6C 75 76 63 61 6D 20 70 6F 77 65 72 20 73 65 6E 73 6F 72 20 6F 66 66 00" # OK|Cron|Error {at}
+a cli 14 "mcra {int(ts_img-dt_bg*60-dt_noise*60+3*60)} 1 2 {source} 1 7 41 0 TRX 6C 75 76 63 61 6D 20 70 6F 77 65 72 20 66 70 67 61 20 6F 66 66 00" # OK|Cron|Error {at}
+a cli 14 "mcra {int(ts_img-dt_bg*60-45)} 1 1 {source} 1 7 37 0 TRX 6C 75 76 63 61 6D 20 70 6F 77 65 72 20 66 70 67 61 20 6F 6E 00" # OK|Cron|Error {at}
+a cli 14 "mcra {int(ts_img-dt_bg*60-15)} 1 1 {source} 1 7 38 0 TRX 6C 75 76 63 61 6D 20 70 6F 77 65 72 20 73 65 6E 73 6F 72 20 6F 6E 00" # OK|Cron|Error {at}
+a cli 14 "mcra {int(ts_img-dt_bg*60)} 1 1 {source} 1 7 39 0 TRX {luvcam_expose_data_bg}" # OK|Cron|Error {at}
+a cli 14 "mcra {int(ts_img-dt_bg*60+1.5*60)} 1 2 {source} 1 7 40 0 TRX 6C 75 76 63 61 6D 20 70 6F 77 65 72 20 73 65 6E 73 6F 72 20 6F 66 66 00" # OK|Cron|Error {at}
+a cli 14 "mcra {int(ts_img-dt_bg*60+2*60)} 1 2 {source} 1 7 41 0 TRX 6C 75 76 63 61 6D 20 70 6F 77 65 72 20 66 70 67 61 20 6F 66 66 00" # OK|Cron|Error {at}
+a cli 14 "mcra {int(ts_img-45)} 1 1 {source} 1 7 37 0 TRX 6C 75 76 63 61 6D 20 70 6F 77 65 72 20 66 70 67 61 20 6F 6E 00" # OK|Cron|Error {at}
+a cli 14 "mcra {int(ts_img-15)} 1 1 {source} 1 7 38 0 TRX 6C 75 76 63 61 6D 20 70 6F 77 65 72 20 73 65 6E 73 6F 72 20 6F 6E 00" # OK|Cron|Error {at}
+a cli 14 "mcra {ts_img} 1 1 {source} 1 7 39 0 TRX {luvcam_expose_data}" # OK|Cron|Error {at}
+a cli 14 "mcra {int(ts_img+2*60)} 1 2 {source} 1 7 40 0 TRX 6C 75 76 63 61 6D 20 70 6F 77 65 72 20 73 65 6E 73 6F 72 20 6F 66 66 00" # OK|Cron|Error {at}
+a cli 14 "mcra {int(ts_img+3*60)} 1 2 {source} 1 7 41 0 TRX 6C 75 76 63 61 6D 20 70 6F 77 65 72 20 66 70 67 61 20 6F 66 66 00" # OK|Cron|Error {at}
+a cli 14 mcr # OK {at}
+a cli 1 ll # responseLen # 30 {datetime.fromtimestamp(int(ts_img+4*60),timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")}
+a grb sh 0 ll # .b # 30 {datetime.fromtimestamp(int(ts_img+4*60),timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")}
+
+
+---------------------------------------------------------------------------------
+## commands for drops ... the cron commands still need to be retrieved from satop
+YYYY-MM-DD HH:MM:SS
+m grb getf 0 -u -i -1 -w 8 -p 200 dtsol6.b -n 100
+
+## science image
+# part 1/2
+YYYY-MM-DD HH:MM:SS
+m grb address_offset 0 # grb getf 1 -u -i -1 -w 8 -p 200 {filename}.raw -f 0 -s 262144 -n 3000
+
+# part 2/2
+YYYY-MM-DD HH:MM:SS
+m grb address_offset 0 # grb getf 1 -u -i -1 -w 8 -p 200 {filename}.raw -f 262144 -s 262272 -n 3000
+
+## background image
+# part 1/2
+YYYY-MM-DD HH:MM:SS
+m grb address_offset 0 # grb getf 1 -u -i -1 -w 8 -p 200 {bg_filename}.raw -f 0 -s 262144 -n 3000
+
+# part 2/2
+YYYY-MM-DD HH:MM:SS
+m grb address_offset 0 # grb getf 1 -u -i -1 -w 8 -p 200 {bg_filename}.raw -f 262144 -s 262272 -n 3000
+
+## noise image
+# part 1/1
+YYYY-MM-DD HH:MM:SS
+m grb address_offset 0 # grb getf 1 -u -i -1 -w 8 -p 200 {noise_filename}.raw -n 1500
+
+
+"""
+
+    with open(f"{output_fn}_satop.txt", "w") as file:
+        file.write(op_plan_satop)
+
+
+# # create op plan
+# create_op_plan_science_img(img_time_utc="2026-06-03 20:00:00",
+#                            target_ra=150.4,target_dec=53.1,target_name="target",
+#                            img_filename="26f03",img_exp=250,flush_img_filename="flush",
+#                            dt_pointing=10,output_fn="op_plan_20260603")
