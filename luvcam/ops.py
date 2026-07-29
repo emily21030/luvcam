@@ -367,10 +367,10 @@ grb sh 0 rm dtsol6.b
         file.write(op_plan)    
 
     ## schedule the commands for later if when_to_send argument is defined
-    attempts = 30
-    earliest_time = datetime.strptime(when_to_send, "%Y-%m-%d %H:%M:%S").replace(tzinfo=timezone.utc)
-    send_at = datetime.fromtimestamp(int(earliest_time.timestamp()),timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
     if when_to_send != None:
+        attempts = 30
+        earliest_time = datetime.strptime(when_to_send, "%Y-%m-%d %H:%M:%S").replace(tzinfo=timezone.utc)
+        send_at = datetime.fromtimestamp(int(earliest_time.timestamp()),timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
         at = f"# {attempts} {send_at}"
     else:
         at = "" 
@@ -629,10 +629,10 @@ grb sh 0 rm dtsol6.b
 
 
     ## schedule the commands for later if when_to_send argument is defined
-    attempts = 30
-    earliest_time = datetime.strptime(when_to_send, "%Y-%m-%d %H:%M:%S").replace(tzinfo=timezone.utc)
-    send_at = datetime.fromtimestamp(int(earliest_time.timestamp()),timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
     if when_to_send != None:
+        attempts = 30
+        earliest_time = datetime.strptime(when_to_send, "%Y-%m-%d %H:%M:%S").replace(tzinfo=timezone.utc)
+        send_at = datetime.fromtimestamp(int(earliest_time.timestamp()),timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
         at = f"# {attempts} {send_at}"
     else:
         at = "" 
